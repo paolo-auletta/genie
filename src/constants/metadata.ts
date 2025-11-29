@@ -141,3 +141,27 @@ export const FIELDS_OF_STUDY = [
   "Education / Social Sciences",
   "Other",
 ];
+
+export const CURRENT_STATUSES = [
+  "High school student",
+  "University student",
+  "Working + studying",
+  "Only working",
+  "Other",
+];
+
+export const JOB_ROLES = [
+  "Software engineer",
+  "Data scientist",
+  "Data analyst",
+  "Product manager",
+  "UX/UI designer",
+  "Graphic designer",
+  "Teacher",
+  "Nurse",
+  "Doctor",
+  "Marketing specialist",
+  "Salesperson",
+  "Customer support",
+  "Other",
+];

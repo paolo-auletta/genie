@@ -16,7 +16,9 @@ import {
   COUNTRIES,
   LANGUAGES,
   FIELDS_OF_STUDY,
-} from "../../constants/metadata";
+  CURRENT_STATUSES,
+  JOB_ROLES,
+} from "../constants/metadata";
 
 type StudentSummaries = {
   summary_overall: string;
@@ -55,13 +57,27 @@ const BACKEND_URL =
 
 export default function Home() {
   const [userId, setUserId] = useState("");
+  const [name, setName] = useState("");
+  const [surname, setSurname] = useState("");
+  const [age, setAge] = useState("");
   const [description, setDescription] = useState("");
   const [fieldOfStudy, setFieldOfStudy] = useState("");
   const [country, setCountry] = useState("");
   const [languages, setLanguages] = useState<string[]>([]);
+  const [currentStatus, setCurrentStatus] = useState("");
+  const [jobRole, setJobRole] = useState("");
+  const [financialSupportPerYear, setFinancialSupportPerYear] = useState("");
+  const [financialSupportDuration, setFinancialSupportDuration] = useState("");
   const [matchFieldOfStudy, setMatchFieldOfStudy] = useState("");
   const [matchCountry, setMatchCountry] = useState("");
   const [matchLanguages, setMatchLanguages] = useState<string[]>([]);
+  const [matchCurrentStatus, setMatchCurrentStatus] = useState("");
+  const [matchJobRole, setMatchJobRole] = useState("");
+  const [matchAge, setMatchAge] = useState("");
+  const [matchFinancialSupportPerYear, setMatchFinancialSupportPerYear] =
+    useState("");
+  const [matchFinancialSupportDuration, setMatchFinancialSupportDuration] =
+    useState("");
   const [isCreating, setIsCreating] = useState(false);
   const [createError, setCreateError] = useState<string | null>(null);
   const [studentResponse, setStudentResponse] =
@@ -74,26 +90,48 @@ export default function Home() {
   const [matchResponse, setMatchResponse] =
     useState<BelieverMatchResponse | null>(null);
 
+  const isStudying =
+    currentStatus === "High school student" ||
+    currentStatus === "University student" ||
+    currentStatus === "Working + studying";
+
+  const isWorking =
+    currentStatus === "Working + studying" ||
+    currentStatus === "Only working";
+
   async function handleCreateStudent(e: React.FormEvent) {
     e.preventDefault();
-    if (!userId || !description) {
-      setCreateError("User ID and description are required.");
+    if (!description) {
+      setCreateError("Description is required.");
       return;
     }
     setIsCreating(true);
     setCreateError(null);
     try {
+      const effectiveUserId = userId || `user-${crypto.randomUUID()}`;
+      if (!userId) {
+        setUserId(effectiveUserId);
+      }
       const res = await fetch(`${BACKEND_URL}/students`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          user_id: userId,
+          user_id: effectiveUserId,
           description,
           field_of_study: fieldOfStudy || null,
           country: country || null,
           languages,
+          age: age ? Number(age) : null,
+          current_status: currentStatus || null,
+          job_role: isWorking ? jobRole || null : null,
+          financial_support_per_year: financialSupportPerYear
+            ? Number(financialSupportPerYear)
+            : null,
+          financial_support_duration: financialSupportDuration
+            ? Number(financialSupportDuration)
+            : null,
         }),
       });
 
@@ -104,6 +142,39 @@ export default function Home() {
 
       const data = (await res.json()) as StudentCreateResponse;
       setStudentResponse(data);
+
+		  // Also persist structured user profile into Supabase via Drizzle
+		  try {
+		    const profileRes = await fetch("/api/students", {
+		      method: "POST",
+		      headers: {
+		        "Content-Type": "application/json",
+		      },
+		      body: JSON.stringify({
+		        user_id: effectiveUserId,
+		        name: name || null,
+		        surname: surname || null,
+		        age: age || null,
+		        country: country || null,
+		        languages,
+		        current_status: currentStatus || null,
+		        current_field_of_study: isStudying ? fieldOfStudy || null : null,
+		        job_role: isWorking ? jobRole || null : null,
+		        financial_support_per_year:
+		          financialSupportPerYear || null,
+		        financial_support_duration:
+		          financialSupportDuration || null,
+		        description: description || null,
+		      }),
+		    });
+
+		    if (!profileRes.ok) {
+		      const text = await profileRes.text();
+		      console.error("Failed to upsert user profile:", text);
+		    }
+		  } catch (profileError) {
+		    console.error("Error calling /api/users:", profileError);
+		  }
     } catch (error) {
       setCreateError(
         error instanceof Error ? error.message : "Unknown error",
@@ -133,6 +204,15 @@ export default function Home() {
           field_of_study: matchFieldOfStudy || null,
           country: matchCountry || null,
           languages: matchLanguages,
+          current_status: matchCurrentStatus || null,
+          job_role: matchJobRole || null,
+          age: matchAge ? Number(matchAge) : null,
+          financial_support_per_year: matchFinancialSupportPerYear
+            ? Number(matchFinancialSupportPerYear)
+            : null,
+          financial_support_duration: matchFinancialSupportDuration
+            ? Number(matchFinancialSupportDuration)
+            : null,
         }),
       });
 
@@ -181,56 +261,54 @@ export default function Home() {
             </CardHeader>
             <CardContent>
               <form className="space-y-4" onSubmit={handleCreateStudent}>
-                <div className="space-y-2">
-                  <Label htmlFor="userId">User ID</Label>
-                  <Input
-                    id="userId"
-                    value={userId}
-                    onChange={(e) => setUserId(e.target.value)}
-                    placeholder="student-123"
-                  />
+                <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+                  <div className="space-y-2">
+                    <Label htmlFor="name">Name</Label>
+                    <Input
+                      id="name"
+                      value={name}
+                      onChange={(e) => setName(e.target.value)}
+                      placeholder="Chiara"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="surname">Surname</Label>
+                    <Input
+                      id="surname"
+                      value={surname}
+                      onChange={(e) => setSurname(e.target.value)}
+                      placeholder="Rossi"
+                    />
+                  </div>
                 </div>
-                <div className="space-y-2">
-                  <Label htmlFor="description">Student description</Label>
-                  <Textarea
-                    id="description"
-                    value={description}
-                    onChange={(e) => setDescription(e.target.value)}
-                    rows={6}
-                    placeholder="Paste the student's description..."
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="fieldOfStudy">Field of study</Label>
-                  <select
-                    id="fieldOfStudy"
-                    value={fieldOfStudy}
-                    onChange={(e) => setFieldOfStudy(e.target.value)}
-                    className="flex h-9 w-full rounded-md border border-input bg-background px-3 py-2 text-sm shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
-                  >
-                    <option value="">Select a field</option>
-                    {FIELDS_OF_STUDY.map((field) => (
-                      <option key={field} value={field}>
-                        {field}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="country">Country</Label>
-                  <select
-                    id="country"
-                    value={country}
-                    onChange={(e) => setCountry(e.target.value)}
-                    className="flex h-9 w-full rounded-md border border-input bg-background px-3 py-2 text-sm shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
-                  >
-                    <option value="">Select a country</option>
-                    {COUNTRIES.map((c) => (
-                      <option key={c} value={c}>
-                        {c}
-                      </option>
-                    ))}
-                  </select>
+                <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+                  <div className="space-y-2">
+                    <Label htmlFor="age">Age</Label>
+                    <Input
+                      id="age"
+                      type="number"
+                      min={0}
+                      value={age}
+                      onChange={(e) => setAge(e.target.value)}
+                      placeholder="21"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="country">Country</Label>
+                    <select
+                      id="country"
+                      value={country}
+                      onChange={(e) => setCountry(e.target.value)}
+                      className="flex h-9 w-full rounded-md border border-input bg-background px-3 py-2 text-sm shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
+                    >
+                      <option value="">Select a country</option>
+                      {COUNTRIES.map((c) => (
+                        <option key={c} value={c}>
+                          {c}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="languages">Languages</Label>
@@ -266,6 +344,100 @@ export default function Home() {
                     </p>
                   )}
                 </div>
+                <div className="space-y-2">
+                  <Label htmlFor="currentStatus">Current status</Label>
+                  <select
+                    id="currentStatus"
+                    value={currentStatus}
+                    onChange={(e) => setCurrentStatus(e.target.value)}
+                    className="flex h-9 w-full rounded-md border border-input bg-background px-3 py-2 text-sm shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
+                  >
+                    <option value="">Select status</option>
+                    {CURRENT_STATUSES.map((status) => (
+                      <option key={status} value={status}>
+                        {status}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+                {isStudying && (
+                  <div className="space-y-2">
+                    <Label htmlFor="fieldOfStudy">Current field of study</Label>
+                    <select
+                      id="fieldOfStudy"
+                      value={fieldOfStudy}
+                      onChange={(e) => setFieldOfStudy(e.target.value)}
+                      className="flex h-9 w-full rounded-md border border-input bg-background px-3 py-2 text-sm shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
+                    >
+                      <option value="">Select a field</option>
+                      {FIELDS_OF_STUDY.map((field) => (
+                        <option key={field} value={field}>
+                          {field}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                )}
+                {isWorking && (
+                  <div className="space-y-2">
+                    <Label htmlFor="jobRole">Job role</Label>
+                    <select
+                      id="jobRole"
+                      value={jobRole}
+                      onChange={(e) => setJobRole(e.target.value)}
+                      className="flex h-9 w-full rounded-md border border-input bg-background px-3 py-2 text-sm shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
+                    >
+                      <option value="">Select a job</option>
+                      {JOB_ROLES.map((role) => (
+                        <option key={role} value={role}>
+                          {role}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                )}
+                <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+                  <div className="space-y-2">
+                    <Label htmlFor="financialSupportPerYear">
+                      Financial support per year
+                    </Label>
+                    <Input
+                      id="financialSupportPerYear"
+                      type="number"
+                      min={0}
+                      value={financialSupportPerYear}
+                      onChange={(e) =>
+                        setFinancialSupportPerYear(e.target.value)
+                      }
+                      placeholder="e.g. 5000"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="financialSupportDuration">
+                      Financial support duration (years)
+                    </Label>
+                    <Input
+                      id="financialSupportDuration"
+                      type="number"
+                      min={0}
+                      value={financialSupportDuration}
+                      onChange={(e) =>
+                        setFinancialSupportDuration(e.target.value)
+                      }
+                      placeholder="e.g. 3"
+                    />
+                  </div>
+                </div>
+                <div className="space-y-2">
+		          <Label htmlFor="description">Student description</Label>
+		          <Textarea
+		            id="description"
+		            value={description}
+		            onChange={(e) => setDescription(e.target.value)}
+		            rows={6}
+		            placeholder="Paste the student's description..."
+		          />
+		        </div>
                 {createError ? (
                   <p className="text-sm text-destructive">{createError}</p>
                 ) : null}
@@ -328,37 +500,34 @@ export default function Home() {
                     }
                   />
                 </div>
-                <div className="space-y-2">
-                  <Label htmlFor="matchFieldOfStudy">Field of study (filter)</Label>
-                  <select
-                    id="matchFieldOfStudy"
-                    value={matchFieldOfStudy}
-                    onChange={(e) => setMatchFieldOfStudy(e.target.value)}
-                    className="flex h-9 w-full rounded-md border border-input bg-background px-3 py-2 text-sm shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
-                  >
-                    <option value="">Any field</option>
-                    {FIELDS_OF_STUDY.map((field) => (
-                      <option key={field} value={field}>
-                        {field}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="matchCountry">Country (filter)</Label>
-                  <select
-                    id="matchCountry"
-                    value={matchCountry}
-                    onChange={(e) => setMatchCountry(e.target.value)}
-                    className="flex h-9 w-full rounded-md border border-input bg-background px-3 py-2 text-sm shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
-                  >
-                    <option value="">Any country</option>
-                    {COUNTRIES.map((c) => (
-                      <option key={c} value={c}>
-                        {c}
-                      </option>
-                    ))}
-                  </select>
+                <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+                  <div className="space-y-2">
+                    <Label htmlFor="matchAge">Age (filter)</Label>
+                    <Input
+                      id="matchAge"
+                      type="number"
+                      min={0}
+                      value={matchAge}
+                      onChange={(e) => setMatchAge(e.target.value)}
+                      placeholder="Any"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="matchCountry">Country (filter)</Label>
+                    <select
+                      id="matchCountry"
+                      value={matchCountry}
+                      onChange={(e) => setMatchCountry(e.target.value)}
+                      className="flex h-9 w-full rounded-md border border-input bg-background px-3 py-2 text-sm shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
+                    >
+                      <option value="">Any country</option>
+                      {COUNTRIES.map((c) => (
+                        <option key={c} value={c}>
+                          {c}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="matchLanguages">Languages (filter)</Label>
@@ -393,6 +562,86 @@ export default function Home() {
                       Select one or more languages.
                     </p>
                   )}
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="matchCurrentStatus">Current status (filter)</Label>
+                  <select
+                    id="matchCurrentStatus"
+                    value={matchCurrentStatus}
+                    onChange={(e) => setMatchCurrentStatus(e.target.value)}
+                    className="flex h-9 w-full rounded-md border border-input bg-background px-3 py-2 text-sm shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
+                  >
+                    <option value="">Any status</option>
+                    {CURRENT_STATUSES.map((status) => (
+                      <option key={status} value={status}>
+                        {status}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="matchFieldOfStudy">Field of study (filter)</Label>
+                  <select
+                    id="matchFieldOfStudy"
+                    value={matchFieldOfStudy}
+                    onChange={(e) => setMatchFieldOfStudy(e.target.value)}
+                    className="flex h-9 w-full rounded-md border border-input bg-background px-3 py-2 text-sm shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
+                  >
+                    <option value="">Any field</option>
+                    {FIELDS_OF_STUDY.map((field) => (
+                      <option key={field} value={field}>
+                        {field}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="matchJobRole">Job role (filter)</Label>
+                  <select
+                    id="matchJobRole"
+                    value={matchJobRole}
+                    onChange={(e) => setMatchJobRole(e.target.value)}
+                    className="flex h-9 w-full rounded-md border border-input bg-background px-3 py-2 text-sm shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
+                  >
+                    <option value="">Any job</option>
+                    {JOB_ROLES.map((role) => (
+                      <option key={role} value={role}>
+                        {role}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+                <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+                  <div className="space-y-2">
+                    <Label htmlFor="matchFinancialSupportPerYear">
+                      Financial support per year (filter)
+                    </Label>
+                    <Input
+                      id="matchFinancialSupportPerYear"
+                      type="number"
+                      min={0}
+                      value={matchFinancialSupportPerYear}
+                      onChange={(e) =>
+                        setMatchFinancialSupportPerYear(e.target.value)
+                      }
+                      placeholder="Any"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="matchFinancialSupportDuration">
+                      Financial support duration (years, filter)
+                    </Label>
+                    <Input
+                      id="matchFinancialSupportDuration"
+                      type="number"
+                      min={0}
+                      value={matchFinancialSupportDuration}
+                      onChange={(e) =>
+                        setMatchFinancialSupportDuration(e.target.value)
+                      }
+                      placeholder="Any"
+                    />
+                  </div>
                 </div>
                 {matchError ? (
                   <p className="text-sm text-destructive">{matchError}</p>
