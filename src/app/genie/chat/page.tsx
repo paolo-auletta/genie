@@ -9,7 +9,7 @@ import { cn } from "@/lib/utils";
 
 export default function DiscoverChatPage() {
   return (
-    <div className="flex w-full justify-center">
+    <div className="flex w-full justify-center px-4 md:px-0">
       <Suspense fallback={null}>
         <DiscoverChatSection />
       </Suspense>
@@ -77,9 +77,9 @@ function DiscoverChatSection() {
   const chatList = initialChats;
 
   return (
-    <div className="flex h-[600px] w-full max-w-5xl overflow-hidden rounded-3xl border border-[rgba(69,91,80,0.16)] bg-white/95 shadow-[0_18px_40px_rgba(37,64,49,0.08)]">
+    <div className="flex w-full max-w-5xl flex-col overflow-hidden rounded-3xl border border-[rgba(69,91,80,0.16)] bg-white/95 shadow-[0_18px_40px_rgba(37,64,49,0.08)] md:h-[600px] md:flex-row">
       {/* Sidebar */}
-      <div className="w-64 border-r border-[rgba(69,91,80,0.12)] bg-[#F3F6F4]">
+      <div className="w-full border-b border-[rgba(69,91,80,0.12)] bg-[#F3F6F4] md:w-64 md:border-b-0 md:border-r">
         <div className="p-4">
           <div className="relative">
             <Search className="absolute left-2 top-2.5 h-4 w-4 text-[#A0B5A8]" />
@@ -131,7 +131,7 @@ function DiscoverChatSection() {
       {/* Chat Area */}
       <div className="flex flex-1 flex-col bg-white">
         {/* Header */}
-        <div className="flex items-center justify-between border-b border-[rgba(69,91,80,0.12)] px-6 py-3">
+        <div className="flex items-center justify-between border-b border-[rgba(69,91,80,0.12)] px-4 py-3 md:px-6">
           <div className="flex items-center gap-3">
             <div className="flex h-8 w-8 items-center justify-center rounded-full bg-[#F3F6F4] text-xs font-bold text-[#254031]">
               {activeChat
@@ -158,7 +158,7 @@ function DiscoverChatSection() {
         </div>
 
         {/* Messages */}
-        <div className="flex-1 overflow-y-auto p-6">
+        <div className="flex-1 overflow-y-auto p-4 md:p-6">
           <div className="space-y-4">
             {messages[activeChat]?.map((msg) => (
               <div
@@ -194,7 +194,7 @@ function DiscoverChatSection() {
         {/* Input */}
         <div className="border-t border-[rgba(69,91,80,0.12)] p-4">
           <form
-            className="flex items-center gap-2"
+            className="flex flex-col gap-2 sm:flex-row sm:items-center"
             onSubmit={(e) => {
               e.preventDefault();
               handleSend();

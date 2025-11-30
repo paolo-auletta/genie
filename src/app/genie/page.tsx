@@ -59,8 +59,7 @@ type DiscoverResponse = {
 
 type DiscoverSearchParams = {
   believerText: string;
-  ageMin: string;
-  ageMax: string;
+  age: string;
   country: string[];
   languages: string[];
   currentStatus: string[];
@@ -103,8 +102,7 @@ export default function DiscoverPage() {
           languages: params.languages,
           current_status: params.currentStatus.length ? params.currentStatus : null,
           job_role: params.jobRole.length ? params.jobRole : null,
-          age_min: params.ageMin ? Number(params.ageMin) : null,
-          age_max: params.ageMax ? Number(params.ageMax) : null,
+          age: params.age ? Number(params.age) : null,
           financial_support_per_year: params.financialSupportPerYear
             ? Number(params.financialSupportPerYear)
             : null,
@@ -156,8 +154,6 @@ export default function DiscoverPage() {
 
       const prefs = JSON.parse(stored) as {
         believerText?: string;
-        ageMin?: string;
-        ageMax?: string;
         age?: string;
         country?: string | string[];
         languages?: string[];
@@ -201,8 +197,7 @@ export default function DiscoverPage() {
 
       const effective: DiscoverSearchParams = {
         believerText: prefs.believerText ?? "",
-        ageMin: prefs.ageMin ?? prefs.age ?? "",
-        ageMax: prefs.ageMax ?? prefs.age ?? "",
+        age: prefs.age ?? "",
         country,
         languages: Array.isArray(prefs.languages) ? prefs.languages : [],
         currentStatus,
@@ -319,9 +314,11 @@ export default function DiscoverPage() {
 
   return (
     <div className="min-h-screen text-[#254031]">
-      <main className="mx-auto flex max-w-5xl flex-col gap-8 px-0 py-8 md:px-0">
+      <main className="mx-auto flex max-w-5xl flex-col gap-8 px-4 py-8 md:px-0">
         <header className="space-y-1">
-          <h1 className={`${playfair.className} text-3xl font-bold text-[#254031]`}>Discover students</h1>
+          <h1 className={`${playfair.className} text-2xl md:text-3xl font-bold text-[#254031]`}>
+            Discover students
+          </h1>
           <p className="text-sm text-[#455B50]">
             Results based on your saved search preferences.
           </p>
@@ -340,11 +337,11 @@ export default function DiscoverPage() {
         <div className="space-y-4">
           {response?.results?.length ? (
             <>
-              <div className="flex items-center justify-between gap-4 text-xs">
+              <div className="flex flex-col gap-3 text-xs md:flex-row md:items-center md:justify-between">
                 <p className="text-[#455B50]">
                   {response.results.length} matching students
                 </p>
-                <div className="flex items-center gap-2">
+                <div className="flex flex-wrap items-center gap-2">
                   <span className="text-muted-foreground">Sorted by</span>
                   {([
                     ["overall", "Overall"],

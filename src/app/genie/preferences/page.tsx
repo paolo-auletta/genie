@@ -31,8 +31,7 @@ const playfair = DM_Serif_Display({
 
 type DiscoverPreferences = {
   believerText: string;
-  ageMin: string;
-  ageMax: string;
+  age: string;
   country: string[];
   languages: string[];
   currentStatus: string[];
@@ -45,8 +44,7 @@ type DiscoverPreferences = {
 
 const DEFAULT_PREFERENCES: DiscoverPreferences = {
   believerText: "",
-  ageMin: "",
-  ageMax: "",
+  age: "",
   country: [],
   languages: [],
   currentStatus: [],
@@ -131,8 +129,7 @@ export default function DiscoverPreferencesPage() {
         }
 
         if (typeof parsed.age === "string" && parsed.age) {
-          next.ageMin = parsed.age;
-          next.ageMax = parsed.age;
+          next.age = parsed.age;
         }
 
         return next;
@@ -159,7 +156,9 @@ export default function DiscoverPreferencesPage() {
   return (
     <section className="w-full space-y-8 mx-auto max-w-5xl pt-8">
       <header className="space-y-2">
-        <h1 className={`${playfair.className} text-3xl font-semibold text-[#254031]`}>Search preferences</h1>
+        <h1 className={`${playfair.className} text-2xl md:text-3xl font-semibold text-[#254031]`}>
+          Search preferences
+        </h1>
         <p className="max-w-2xl text-sm text-muted-foreground">
           Define your default filters for discovering students. These will be pre-filled and used on the Discover page
           so you can run searches in a single click.
@@ -280,36 +279,56 @@ export default function DiscoverPreferencesPage() {
                   </p>
                 </div>
               </div>
-
+              
               <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                 <div className="space-y-2">
-                  <Label htmlFor="ageMin">Min age</Label>
+                  <Label htmlFor="age">Age</Label>
                   <Input
-                    id="ageMin"
+                    id="age"
                     type="number"
                     min={0}
-                    value={prefs.ageMin}
+                    value={prefs.age}
                     onChange={(e) =>
-                      setPrefs((prev) => ({ ...prev, ageMin: e.target.value }))
+                      setPrefs((prev) => ({ ...prev, age: e.target.value }))
                     }
                     placeholder="Any"
                   />
+                  <p className="text-xs text-muted-foreground">
+                    Leave empty if age is not important.
+                  </p>
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="ageMax">Max age</Label>
-                  <Input
-                    id="ageMax"
-                    type="number"
-                    min={0}
-                    value={prefs.ageMax}
-                    onChange={(e) =>
-                      setPrefs((prev) => ({ ...prev, ageMax: e.target.value }))
-                    }
-                    placeholder="Any"
-                  />
+                  <Label>Current status</Label>
+                  <div className="flex flex-wrap gap-2">
+                    {CURRENT_STATUSES.map((status) => {
+                      const selected = prefs.currentStatus.includes(status);
+                      return (
+                        <Button
+                          key={status}
+                          type="button"
+                          variant={selected ? "default" : "outline"}
+                          size="sm"
+                          onClick={() =>
+                            setPrefs((prev) => ({
+                              ...prev,
+                              currentStatus: selected
+                                ? prev.currentStatus.filter((s) => s !== status)
+                                : [...prev.currentStatus, status],
+                            }))
+                          }
+                        >
+                          {status}
+                        </Button>
+                      );
+                    })}
+                  </div>
+                  <p className="text-xs text-muted-foreground">
+                    {prefs.currentStatus.length
+                      ? `Selected: ${prefs.currentStatus.join(", ")}`
+                      : "Select one or more statuses (optional)."}
+                  </p>
                 </div>
               </div>
-              <p className="text-xs text-muted-foreground">Leave both empty if age is not important.</p>
 
               <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                 <div className="space-y-2">
@@ -351,39 +370,6 @@ export default function DiscoverPreferencesPage() {
                   ) : null}
                 </div>
                 <div className="space-y-2">
-                  <Label>Current status</Label>
-                  <div className="flex flex-wrap gap-2">
-                    {CURRENT_STATUSES.map((status) => {
-                      const selected = prefs.currentStatus.includes(status);
-                      return (
-                        <Button
-                          key={status}
-                          type="button"
-                          variant={selected ? "default" : "outline"}
-                          size="sm"
-                          onClick={() =>
-                            setPrefs((prev) => ({
-                              ...prev,
-                              currentStatus: selected
-                                ? prev.currentStatus.filter((s) => s !== status)
-                                : [...prev.currentStatus, status],
-                            }))
-                          }
-                        >
-                          {status}
-                        </Button>
-                      );
-                    })}
-                  </div>
-                  <p className="text-xs text-muted-foreground">
-                    {prefs.currentStatus.length
-                      ? `Selected: ${prefs.currentStatus.join(", ")}`
-                      : "Select one or more statuses (optional)."}
-                  </p>
-                </div>
-              </div>
-
-              <div className="space-y-2">
                 <Label>Languages</Label>
                 <div className="flex flex-wrap gap-2">
                   {LANGUAGES.map((lang) => {
@@ -413,6 +399,7 @@ export default function DiscoverPreferencesPage() {
                     ? `Selected: ${prefs.languages.join(", ")}`
                     : "Select one or more languages (optional)."}
                 </p>
+              </div>
               </div>
 
               <div className="grid grid-cols-1 gap-4 md:grid-cols-2">

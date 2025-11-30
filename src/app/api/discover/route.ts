@@ -20,8 +20,7 @@ export async function POST(req: NextRequest) {
       languages,
       current_status,
       job_role,
-      age_min,
-      age_max,
+      age,
       financial_support_per_year,
       financial_support_duration,
       financial_support_return,
@@ -66,8 +65,7 @@ export async function POST(req: NextRequest) {
           : job_role
           ? [job_role]
           : null,
-        age_min: typeof age_min === "number" ? age_min : null,
-        age_max: typeof age_max === "number" ? age_max : null,
+        age: typeof age === "number" ? age : null,
         financial_support_per_year: financial_support_per_year ?? null,
         financial_support_duration: financial_support_duration ?? null,
         financial_support_return: Array.isArray(financial_support_return)

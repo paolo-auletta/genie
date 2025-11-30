@@ -125,9 +125,9 @@ export function StudentCard({
           </div>
         </div>
         <CardContent className="p-4 sm:p-5 text-sm">
-          <div className="flex gap-5 md:items-stretch">
+          <div className="flex flex-col gap-5 md:flex-row md:items-stretch">
             {/* Left: profile details */}
-            <div className="w-[100%] flex h-full flex-col gap-2">
+            <div className="w-full md:w-[100%] flex h-full flex-col gap-2">
               <div className="grid gap-3 sm:grid-cols-3">
                 <InfoSection
                   icon={Globe2}
@@ -187,7 +187,7 @@ export function StudentCard({
             </div>
 
             {/* Right: match panel */}
-            <div className="w-[50%] space-y-3 md:mt-0">
+            <div className="w-full md:w-[50%] space-y-3 md:mt-0">
               {student.chart === "stacked" ? (
                 <ChartRadialStacked
                   stats={student.stats}
@@ -201,10 +201,10 @@ export function StudentCard({
               )}
             </div>
           </div>
-          <div className="mt-4 flex gap-2">
+          <div className="mt-4 flex flex-col gap-2 sm:flex-row">
             <button
               type="button"
-              className="w-1/2 flex items-center justify-center gap-2 h-[42px] rounded-2xl border border-[rgba(69,91,80,0.16)] bg-white font-medium text-[#254031] transition-colors hover:bg-[#E5ECE7]"
+              className="w-full sm:w-1/2 flex items-center justify-center gap-2 h-[42px] rounded-2xl border border-[rgba(69,91,80,0.16)] bg-white font-medium text-[#254031] transition-colors hover:bg-[#E5ECE7]"
               onClick={(e) => {
                 e.preventDefault();
                 e.stopPropagation();
@@ -216,7 +216,7 @@ export function StudentCard({
             </button>
             <button
               type="button"
-              className="w-1/2 h-[42px] flex items-center gap-2 justify-center rounded-2xl bg-[#254031] font-medium text-white transition-colors hover:bg-[#1c3125]"
+              className="w-full sm:w-1/2 h-[42px] flex items-center gap-2 justify-center rounded-2xl bg-[#254031] font-medium text-white transition-colors hover:bg-[#1c3125]"
               onClick={(e) => {
                 e.preventDefault();
                 e.stopPropagation();

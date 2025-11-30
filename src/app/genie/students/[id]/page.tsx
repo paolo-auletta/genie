@@ -253,7 +253,7 @@ export default function StudentPage() {
 
   return (
     <div className="min-h-[520px] text-[#254031]">
-      <div className="mx-auto flex max-w-5xl flex-col gap-6 py-6">
+      <div className="mx-auto flex max-w-5xl flex-col gap-6 px-4 py-6 md:px-0">
         <button
           type="button"
           onClick={() => router.back()}

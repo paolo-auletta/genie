@@ -31,16 +31,16 @@ export default function Home() {
 
         <section className="flex-1 flex justify-center items-center px-6 py-10 md:px-14">
           <div className="w-full max-w-md space-y-8">
-            <div className="flex items-center gap-4">
+            <div className="flex flex-col items-start gap-4 md:flex-row md:items-center">
               <Image
                 src="/lampada.png"
                 alt="Lamp icon"
                 width={160}
                 height={160}
-                className="w-36 h-36 object-contain"
+                className="w-24 h-24 md:w-36 md:h-36 object-contain"
               />
               <div
-                className={`${playfair.className} text-7xl font-medium text-[#254031]`}
+                className={`${playfair.className} text-4xl md:text-7xl font-medium text-[#254031]`}
               >
                 Genius
               </div>
@@ -54,17 +54,17 @@ export default function Home() {
                 role="button"
                 tabIndex={0}
                 onClick={() => router.push("/genius")}
-                className="group rounded-2xl border border-[rgba(69,91,80,0.15)] bg-[#F3F6F4] px-6 py-6 text-left cursor-pointer transition-all shadow-sm hover:shadow-xl"
+                className="group rounded-2xl border border-[rgba(69,91,80,0.15)] bg-[#F3F6F4] px-4 py-4 text-left cursor-pointer transition-all shadow-sm hover:shadow-xl md:px-6 md:py-6"
               >
                 <div className="flex flex-col gap-1">
                   <div className="text-xl font-semibold text-[#254031]">Genius</div>
                   <div className="text-sm text-[#455B50]">Make a wish</div>
                 </div>
-                <p className="mt-3 text-sm leading-relaxed text-[#455B50] opacity-0 max-h-0 group-hover:opacity-100 group-hover:max-h-48 transition-all duration-700">
+                <p className="mt-3 text-sm leading-relaxed text-[#455B50] opacity-100 max-h-48 md:opacity-0 md:max-h-0 md:group-hover:opacity-100 md:group-hover:max-h-48 transition-all duration-700">
                   If you are a Genius, this is the right place to ask for support. Click here
                   to be matched with a Genie.
                 </p>
-                <div className="mt-3 opacity-0 max-h-0 group-hover:opacity-100 group-hover:max-h-16 transition-all duration-700">
+                <div className="mt-3 opacity-100 max-h-16 md:opacity-0 md:max-h-0 md:group-hover:opacity-100 md:group-hover:max-h-16 transition-all duration-700">
                   <button className="rounded-full border border-[#254031] bg-transparent px-4 py-1.5 text-xs font-medium text-[#254031] hover:bg-[#254031] hover:text-white transition-colors">
                     Login as Genius
                   </button>
@@ -74,16 +74,16 @@ export default function Home() {
               <div
                 role="button"
                 tabIndex={0}
-                className="group rounded-2xl border border-transparent bg-[#254031] px-6 py-6 text-left cursor-pointer text-white transition-all shadow-sm hover:bg-[#1c3125] hover:shadow-xl"
+                className="group rounded-2xl border border-transparent bg-[#254031] px-4 py-4 text-left cursor-pointer text-white transition-all shadow-sm hover:bg-[#1c3125] hover:shadow-xl md:px-6 md:py-6"
               >
                 <div className="flex flex-col gap-1">
                   <div className="text-xl font-semibold">Genie</div>
                   <div className="text-sm text-[#F0F4F2]">Make a wish come true</div>
                 </div>
-                <p className="mt-3 text-sm leading-relaxed text-[#F0F4F2] opacity-0 max-h-0 group-hover:opacity-100 group-hover:max-h-48 transition-all duration-700">
+                <p className="mt-3 text-sm leading-relaxed text-[#F0F4F2] opacity-100 max-h-48 md:opacity-0 md:max-h-0 md:group-hover:opacity-100 md:group-hover:max-h-48 transition-all duration-700">
                   If you are a Genie, this is the right place to help someone in need.
                 </p>
-                <div className="mt-3 opacity-0 max-h-0 group-hover:opacity-100 group-hover:max-h-16 transition-all duration-700">
+                <div className="mt-3 opacity-100 max-h-16 md:opacity-0 md:max-h-0 md:group-hover:opacity-100 md:group-hover:max-h-16 transition-all duration-700">
                   <button
                     className="rounded-full border border-white/80 bg-transparent px-4 py-1.5 text-xs font-medium text-white hover:bg-white hover:text-[#254031] hover:border-white transition-colors"
                     onClick={(e) => {
